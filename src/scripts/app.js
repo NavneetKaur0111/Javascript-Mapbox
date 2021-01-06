@@ -32,6 +32,7 @@ const apikey =
 const geo = navigator.geolocation;
 const ul = document.querySelector('.points-of-interest');
 const form = document.querySelector('form');
+const li = document.querySelectorAll('.poi');
 
 
 function drawMapForCurrentLocation() {
@@ -117,4 +118,23 @@ form.addEventListener('submit', (event) => {
       }
     );
   }
+})
+
+ul.addEventListener('click', (event) => {
+  let target;
+  if (event.target.classList[0] === 'poi') {
+    target = event.target;
+  } else if (event.target.parentElement.parentElement.classList[0] === 'poi') {
+    target = (event.target.parentElement.parentElement);
+  }
+  console.log(target.dataset.long);
+  console.log(target.dataset.lat);
+  displayMap(target.dataset.long, target.dataset.lat)
+  map.flyTo({
+    center: [
+      -74.5 + (Math.random() - 0.5) * 10,
+      40 + (Math.random() - 0.5) * 10
+    ],
+    essential: true
+  })
 })
