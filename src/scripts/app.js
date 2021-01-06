@@ -30,6 +30,9 @@
 const apikey =
   "pk.eyJ1IjoibmF2bmVldGthdXIxMTAxMDIiLCJhIjoiY2tqbGx6MXJ2NHFvbDJycDkzZTJtcnBldCJ9._8bFHYShajMmYkmTvZn-Ng";
 const geo = navigator.geolocation;
+const ul = document.querySelector('.points-of-interest');
+const form = document.querySelector('form');
+
 
 function drawMapForCurrentLocation() {
   geo.getCurrentPosition(
@@ -56,3 +59,62 @@ function displayMap(long, lat) {
 }
 
 drawMapForCurrentLocation();
+
+function forwardGeocode(placeName, long, lat) {
+  fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${placeName}.json?access_token=${apikey}&limit=10&proximity=${long},${lat}`)
+    .then(response => response.json())
+    .then(data => {
+      const places = data["features"];
+      ul.innerHTML = "";
+      for (let place in places) {
+        printplaces(places[place], long, lat)
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function printplaces(place, long, lat) {
+  const distance = calculateDistance(place.center[0], place.center[1], long, lat).toFixed(2);
+  ul.insertAdjacentHTML('beforeend',
+    `<li class="poi" data-long="${place.center[0]}" data-lat="${place.center[1]}">
+  <ul>
+    <li class="name">${place.text}</li>
+    <li class="street-address">${place.properties.address}</li>
+    <li class="distance">${distance} Km</li>
+  </ul>
+</li>`)
+}
+
+function calculateDistance(long2, lat2, long1, lat1) {
+  const R = 6371;
+  const dLat = deg2rad(lat2 - lat1);
+  const dLong = deg2rad(long2 - long1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLong / 2) * Math.sin(dLong / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return d;
+}
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
+}
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (event.target.nodeName === 'INPUT' || event.target.nodeName === 'FORM') {
+    let inputValue = event.target.firstElementChild.value;
+    event.target.firstElementChild.value = "";
+    geo.getCurrentPosition(
+      (location) => {
+        forwardGeocode(inputValue, location.coords.longitude, location.coords.latitude);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+})
