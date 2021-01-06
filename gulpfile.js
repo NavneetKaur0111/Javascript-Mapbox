@@ -60,7 +60,7 @@ function scriptsTask() {
 function deployTask () {
   return surge({
     project: './dist',
-    domain: 'mapbox.surge.sh'
+    domain: 'https://mapbox-dn.surge.sh'
   })
 }
 
