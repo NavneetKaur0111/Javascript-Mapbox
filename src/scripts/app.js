@@ -1,4 +1,5 @@
-const apikey = "pk.eyJ1IjoibmF2bmVldGthdXIxMTAxMDIiLCJhIjoiY2tqbGx6MXJ2NHFvbDJycDkzZTJtcnBldCJ9._8bFHYShajMmYkmTvZn-Ng";
+const apikey =
+  "pk.eyJ1IjoibmF2bmVldGthdXIxMTAxMDIiLCJhIjoiY2tqbGx6MXJ2NHFvbDJycDkzZTJtcnBldCJ9._8bFHYShajMmYkmTvZn-Ng";
 const ul = document.querySelector(".points-of-interest");
 const form = document.querySelector("form");
 const li = document.querySelectorAll(".poi");
@@ -114,6 +115,7 @@ getCurrentPosition()
   })
   .then((array) => {
     const map = array[0];
+    let marker1;
     ul.addEventListener("click", (event) => {
       let target;
       if (event.target.classList[0] === "poi") {
@@ -127,7 +129,12 @@ getCurrentPosition()
         center: [target.dataset.long, target.dataset.lat],
         essential: true,
       });
+      if (marker1) {
+        marker1.remove();
+      }
       array[2].remove();
-      new mapboxgl.Marker().setLngLat([target.dataset.long, target.dataset.lat]).addTo(map);
+      marker1 = new mapboxgl.Marker()
+        .setLngLat([target.dataset.long, target.dataset.lat])
+        .addTo(map);
     });
   });
